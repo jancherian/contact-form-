@@ -41,6 +41,10 @@
       cursor: pointer;
       font-size: 16px;
     }
+    button:disabled {
+      background: #99c2ff;
+      cursor: not-allowed;
+    }
     .honeypot { position: absolute; left: -9999px; top: auto; }
     .message { margin-top: 16px; padding: 10px; border-radius: 4px; display: none; }
     .message.success { background: #d4edda; color: #155724; display: block; }
@@ -68,9 +72,12 @@
   <script>
     const form = document.getElementById('contact-form');
     const statusMessage = document.getElementById('status-message');
+    const submitBtn = form.querySelector('button[type="submit"]');
 
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Sending...';
       statusMessage.className = 'message';
 
       const name = document.getElementById('name').value.trim();
@@ -80,14 +87,20 @@
       // Client-side validation
       if (name.length < 2) {
         showMessage('Please enter your name.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
         return;
       }
       if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
         showMessage('Please enter a valid email address.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
         return;
       }
       if (message.length < 10) {
         showMessage('Message should be at least 10 characters long.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
         return;
       }
 
@@ -105,8 +118,16 @@
         });
         showMessage('Thanks! Your message has been sent.', 'success');
         form.reset();
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
+        // Re-enable after 3 seconds
+        setTimeout(() => {
+          submitBtn.disabled = false;
+        }, 3000);
       } catch (error) {
         showMessage('Network error. Please check your connection and try again.', 'error');
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Send';
       }
     });
 
